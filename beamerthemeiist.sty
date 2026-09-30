@@ -1,17 +1,17 @@
 %% ---'beamerthemeiist.sty' Presentation Slides Template for IIST--- %%
 %%                  Copyright (C) 2018  Sarath Babu                  %%
 
-% This program is free software: you can redistribute it and/or modify 
-% it under the terms of the GNU General Public License as published by 
-% the Free Software Foundation, either version 3 of the License, or 
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
 % (at your option) any later version.
 
-% This program is distributed in the hope that it will be useful, but 
-% WITHOUT ANY WARRANTY; without even the implied warranty of 
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+% This program is distributed in the hope that it will be useful, but
+% WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 % General Public License for more details.
 
-% You should have received a copy of the GNU General Public License 
+% You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % Contact email: 4sarathbabu@gmail.com
@@ -19,33 +19,150 @@
 
 % Updated by : Ramzan Basheer, contact at r4ramzan@gmail.com
 % URL: https://github.com/ramzan-basheer
+%
+% v2.1 (2026-09-30): serif math everywhere (newpxmath by default); no
+% sans math; newpxtext/newtxtext supply the matching math roman.
+% v2.0 (2026-09-30): font pairing (Fira Sans text, newtx serif option),
+% accessible colour palette, level-specific bullets, logo/rules drawn with
+% TikZ (pgf 0.65 compatibility layer removed), paper-width-relative
+% geometry, footline with institute, styled section pages, booktabs
+% tables with coloured header row, coloured hyperlinks, watermark helpers.
+%
+% Theme options (\usetheme[<options>]{iist}):
+%   sans            Fira Sans text + newpxmath (Palatino) math (default)
+%   serif           newpxtext + newpxmath: Palatino text and math
+%   classicfonts    Latin Modern Sans text (v1 look) + newtxmath (Times) math
+%   pxmath          force newpxtext/newpxmath maths in any mode
+%   txmath          force newtxtext/newtxmath maths in any mode
+%                   (e.g. [serif,txmath] gives Times text and math)
+% Math is never set in a sans font: beamer's sans-math switch is disabled
+% (professionalfonts), and no sans math package is loaded.
+%   nosectionpages  do not insert a divider frame at each \section
+%   subsectionpages also insert a divider frame at each \subsection
+%
+% User commands (in addition to the v1 commands, all kept):
+%   \iistlogo{<file>}          logo file (default: logo.pdf)
+%   \setlength{\iistlogoheight}{<len>}   header logo height cap (default 1cm)
+%   \iistwatermarkon[<opacity>] faded logo behind following frames (default 0.08)
+%   \iistwatermarkoff           remove the watermark
+%   \iistheadrow                colour the current table row as a header row
+%   \iistsubsectionframe        insert a subsection divider frame by hand
 
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{beamerthemeiist}[2026/09/30 v2.1 IIST beamer theme]
 
-%%% The preamble 
+\RequirePackage{iftex}
+
+%%% ---- Theme options ------------------------------------------------
+\newif\ifiist@serif
+\newif\ifiist@fonts
+\newif\ifiist@sectionpages
+\newif\ifiist@subsectionpages
+\newif\ifiist@txmath
+\newif\ifiist@mathset
+\iist@seriffalse
+\iist@txmathfalse
+\iist@mathsetfalse
+\iist@fontstrue
+\iist@sectionpagestrue
+\iist@subsectionpagesfalse
+\DeclareOptionBeamer{sans}{\iist@seriffalse}
+\DeclareOptionBeamer{serif}{\iist@seriftrue}
+\DeclareOptionBeamer{classicfonts}{\iist@fontsfalse}
+\DeclareOptionBeamer{nosectionpages}{\iist@sectionpagesfalse}
+\DeclareOptionBeamer{subsectionpages}{\iist@subsectionpagestrue}
+\DeclareOptionBeamer{pxmath}{\iist@txmathfalse\iist@mathsettrue}
+\DeclareOptionBeamer{txmath}{\iist@txmathtrue\iist@mathsettrue}
+\ProcessOptionsBeamer
+%% classicfonts defaults to newtx maths unless pxmath/txmath was given.
+\ifiist@fonts\else
+  \ifiist@mathset\else\iist@txmathtrue\fi
+\fi
+
+%%% The preamble
 \mode<presentation>
-\usepackage{pgfcomp-version-0-65}
-\usepackage{color}
-\usepackage[framemethod=TikZ]{mdframed}
-\usetikzlibrary{shadows}
-\usepackage[size=scriptsize]{caption}
-\usepackage[absolute, overlay]{textpos}
-\usepackage{mathtools}
-\usepackage{amsthm}
-\usepackage{graphicx}
-\usepackage{hyperref}
-\usepackage[ruled, linesnumbered]{algorithm2e}
-\usepackage{nicefrac}
-\usepackage{xcolor}
-\usepackage{amssymb}
-\usepackage{amsmath}
-\usepackage{animate}
-\usepackage{multimedia}
-\usepackage{tikz}
-\usepackage{background}
-\usetikzlibrary{fadings}
-\usepackage{setspace}
-% \usepackage{multicol}
 
+%% ---- Encoding and fonts ---------------------------------------------
+%% T1 encoding for pdfLaTeX only; XeLaTeX/LuaLaTeX get fontspec via fira.
+\ifPDFTeX
+  \RequirePackage[T1]{fontenc}
+\else
+  %% XeLaTeX/LuaLaTeX: scalable CM metrics for the few OT1 fallbacks.
+  \RequirePackage{fix-cm}
+\fi
+%% amsmath (via mathtools) must be loaded before the newpx/newtx maths.
+\RequirePackage{mathtools}
+%% Keep beamer from switching maths to the sans font (no sans math).
+\usefonttheme{professionalfonts}
+%% 1. Sans and typewriter families first, so maths alphabets such as
+%%    \mathsf bind to the slide fonts.
+\ifiist@fonts
+  \ifiist@serif
+    %% Slide text in the roman family set below; Fira Sans stays
+    %% available for \textsf and \mathsf.
+    \usefonttheme{serif}
+    \RequirePackage[scaled=0.92,lining]{FiraSans}
+  \else
+    \RequirePackage[sfdefault,scaled=0.92,lining]{FiraSans}
+  \fi
+  \RequirePackage[scaled=0.85,lining]{FiraMono}
+  \newcommand{\iist@caps}{\scshape}
+\else
+  %% v1 look: beamer's default sans in scalable Latin Modern outlines.
+  \usefonttheme{default}
+  \RequirePackage{lmodern}
+  \newcommand{\iist@caps}{}
+\fi
+%% 2. Serif maths with its matching roman family. The text package
+%%    supplies the roman used by \mathrm, \mathbf, operators (\sin, \log)
+%%    and digits in maths; without it these fall back to Computer Modern.
+%%    'nohelv' (and 'nott') stop it replacing the sans (and typewriter)
+%%    family. Both packages also set \familydefault to the roman family
+%%    (and newpxtext resets \ttdefault; under XeLaTeX/LuaLaTeX the default
+%%    encoding changes), so the slide text settings chosen in step 1 are
+%%    saved here and restored afterwards: only \rmdefault changes.
+%%    The maths packages provide the AMS symbols.
+\let\iist@familydefault\familydefault
+\let\iist@sfdefault\sfdefault
+\let\iist@ttdefault\ttdefault
+\let\iist@encodingdefault\encodingdefault
+%% While loading, point the default family at the roman family: under
+%% XeLaTeX the packages load fontenc (T1), which selects \familydefault,
+%% and a fontspec-only family such as Fira has no T1 shapes.
+\renewcommand{\familydefault}{\rmdefault}
+\ifiist@txmath
+  \RequirePackage[nohelv,nott]{newtxtext}
+  \RequirePackage{newtxmath}
+\else
+  \RequirePackage[nohelv]{newpxtext}
+  \RequirePackage{newpxmath}
+\fi
+\let\familydefault\iist@familydefault
+\let\sfdefault\iist@sfdefault
+\let\ttdefault\iist@ttdefault
+\let\encodingdefault\iist@encodingdefault
+%% Under XeLaTeX/LuaLaTeX the sans family (Fira) exists only in TU
+%% encoding, so \mathsf is re-declared there to match the slide text.
+\ifPDFTeX\else
+  \DeclareMathAlphabet{\mathsf}{TU}{\sfdefault}{m}{n}
+  \SetMathAlphabet{\mathsf}{bold}{TU}{\sfdefault}{b}{n}
+\fi
+\RequirePackage{microtype}
+
+%% ---- Packages kept from v1 ------------------------------------------
+\RequirePackage[framemethod=TikZ]{mdframed}
+\usetikzlibrary{shadows,fadings,calc}
+\RequirePackage[size=scriptsize]{caption}
+\RequirePackage[absolute, overlay]{textpos}
+\RequirePackage{amsthm}
+\RequirePackage[ruled, linesnumbered]{algorithm2e}
+\RequirePackage{nicefrac}
+\RequirePackage{animate}
+\RequirePackage{multimedia}
+\RequirePackage{setspace}
+%% ---- Tables -----------------------------------------------------------
+\RequirePackage{booktabs}
+\RequirePackage{colortbl}
 
 %% ---- Assumption, Remark, and Proposition
 \newtheorem{assumption}{Assumption}
@@ -79,12 +196,22 @@
 	\newcommand{\BottomFigure}{#1}
 }
 
-%%% Defining required colors for the style
-\definecolor{TitleBlack}{rgb}{0, 0, 0} % Usual black
-\definecolor{TopLine}{RGB}{0, 147, 221} % Light blue from logo
-\definecolor{BottomLine}{RGB}{213, 187, 146} % Light cream from logo
-\definecolor{BulletGreen}{RGB}{24, 100, 196} % Light green from logo
-\definecolor{CustomBlue}{RGB}{24, 100, 196} % Dark blue for some fonts
+%%% ---- Colours -------------------------------------------------------
+%% v1 names (kept, same values; decorative colours from the IIST logo)
+\definecolor{TitleBlack}{rgb}{0, 0, 0}          % Usual black
+\definecolor{TopLine}{RGB}{0, 147, 221}         % Light blue from logo
+\definecolor{BottomLine}{RGB}{213, 187, 146}    % Light cream from logo
+\definecolor{BulletGreen}{RGB}{24, 100, 196}    % (blue, name kept for compatibility)
+\definecolor{CustomBlue}{RGB}{24, 100, 196}     % Dark blue for some fonts
+%% v2 palette: text colours meet WCAG AA (4.5:1) on white, and white text
+%% on the same colours (block title bars) has the same ratio.
+\definecolor{IISTPrimary}{RGB}{24, 100, 196}    % structure, bullets, links  (5.7:1)
+\definecolor{IISTPrimaryDark}{RGB}{14, 62, 122} % titles                     (10.6:1)
+\definecolor{IISTAccent}{RGB}{0, 147, 221}      % rules, sub-bullets (graphics only, 3.4:1)
+\definecolor{IISTSand}{RGB}{213, 187, 146}      % secondary rules (decorative)
+\definecolor{IISTAlert}{RGB}{178, 34, 34}       % alert                       (6.7:1)
+\definecolor{IISTExample}{RGB}{0, 110, 95}      % example                     (6.2:1)
+\definecolor{IISTMuted}{RGB}{88, 96, 105}       % footline, level-3 bullets   (6.4:1)
 
 %% Defining footnote font size
 \setbeamerfont{footnote}{size=\tiny}
@@ -92,278 +219,360 @@
 %% Rectangle theme for inner component style
 \useinnertheme{rectangles}
 
-%%% Apply different colors to beamer components
+%%% Apply colours to beamer components
+\setbeamercolor{normal text}{fg = TitleBlack}
+\setbeamercolor{structure}{fg = IISTPrimary}
+\setbeamercolor{alerted text}{fg = IISTAlert}
+\setbeamercolor{example text}{fg = IISTExample}
 
-%% Color for frame-title
-\setbeamercolor{frametitle}{fg = TitleBlack}
+%% Colour for frame-title
+\setbeamercolor{frametitle}{fg = IISTPrimaryDark}
 
 %% Set style for the table of contents (outline) frame
 \setbeamerfont{subsection in toc}{size=\footnotesize}
 \setbeamercolor{section in toc}{fg = TitleBlack}
 \setbeamercolor{section in toc square}{fg = TitleBlack}
+\setbeamercolor{subsection in toc}{fg = IISTMuted}
 
-%% Color for items in itemization, enumeration and description
+%% Colour for items in itemization, enumeration and description
 \setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
 \setbeamertemplate{itemize/enumerate subsubbody begin}{\scriptsize}
 \setbeamercolor{item}{fg = TitleBlack}
 \setbeamercolor{subitem}{fg = TitleBlack}
 \setbeamercolor{subsubitem}{fg = TitleBlack}
 
-%% Style for the bullets of 'itemize'
-\setbeamertemplate{itemize items}{\textcolor{BulletGreen}{\raisebox{.45ex}{\rule{1ex}{1ex}}}}
+%% Bullets of 'itemize': level 1 square (v1 marker), level 2 triangle,
+%% level 3 dash. Drawn with TikZ so they do not depend on the math font.
+\setbeamertemplate{itemize item}{%
+  \tikz[baseline=0pt]\fill[IISTPrimary] (0,0.1ex) rectangle (1ex,1.1ex);}
+\setbeamertemplate{itemize subitem}{%
+  \tikz[baseline=0pt]\fill[IISTAccent] (0,0.05ex) -- (0.85ex,0.5ex) -- (0,0.95ex) -- cycle;}
+\setbeamertemplate{itemize subsubitem}{%
+  \tikz[baseline=0pt]\fill[IISTMuted] (0,0.4ex) rectangle (0.8ex,0.6ex);}
 
 %% Style for the bullets of 'enumerate'
 \setbeamertemplate{enumerate items}[square]
-\setbeamercolor{item projected}{bg=BulletGreen, fg=white}
+\setbeamercolor{item projected}{bg=IISTPrimary, fg=white}
 
 %% Style for the bullets of 'description'
-\setbeamercolor{description item}{fg = BulletGreen}
+\setbeamercolor{description item}{fg = IISTPrimary}
 
 %% Set style for captions of figures and tables
 \setbeamercolor{caption}{fg = TitleBlack}
-\setbeamercolor{caption name}{fg = TitleBlack}
+\setbeamercolor{caption name}{fg = IISTPrimaryDark}
 
 %% Define the figure captions as numbered
 \setbeamertemplate{caption}[numbered]
 \captionsetup{format=plain, labelfont={bf}, labelsep=colon}
 
-%% Defining blocks
-\setbeamertemplate{blocks}[rounded][shadow=true] % For rounded edges
+%% ---- Blocks: rounded, shadow, solid coloured title bar ----------------
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\setbeamerfont{block title}{series=\bfseries}
 
 %% Normal block
-\setbeamercolor{block body}{bg = TopLine!10}
-\setbeamercolor{block title}{fg = TopLine!200, bg = TopLine!50}
+\setbeamercolor{block title}{fg = white, bg = IISTPrimary}
+\setbeamercolor{block body}{fg = TitleBlack, bg = IISTPrimary!7}
 
 %% Example block
-\setbeamercolor{block title example}{fg = BulletGreen!200, bg = BulletGreen!50}
-\setbeamercolor{block body example}{bg = BulletGreen!10}
+\setbeamercolor{block title example}{fg = white, bg = IISTExample}
+\setbeamercolor{block body example}{fg = TitleBlack, bg = IISTExample!7}
 
 %% Alert block
-\setbeamercolor{block title alerted}{fg = red!150, bg = red!30}
-\setbeamercolor{block body alerted}{bg = red!5}
+\setbeamercolor{block title alerted}{fg = white, bg = IISTAlert}
+\setbeamercolor{block body alerted}{fg = TitleBlack, bg = IISTAlert!6}
 
-%% Color of normal text
-\setbeamercolor{normal text}{fg = TitleBlack}
+%% Colour of buttons (For example, hyperlink buttons)
+\setbeamercolor{button}{bg=IISTPrimary!80, fg=white}
 
-%% Color of buttons (For example, hyperlink buttons)
-\setbeamercolor{button}{bg=CustomBlue!70,fg=white}
+%% ---- Tables: booktabs + coloured header row ----------------------------
+%% Rule separation is moved into the row height so that \rowcolor fills
+%% the header without white gaps next to the booktabs rules.
+\setlength{\aboverulesep}{0pt}
+\setlength{\belowrulesep}{0pt}
+\renewcommand{\arraystretch}{1.25}
+\colorlet{IISTTableHead}{IISTPrimary!15}
+\newcommand{\iistheadrow}{\rowcolor{IISTTableHead}}
 
-%% Font for presentation
-\usefonttheme{default}
+%% ---- Hyperlinks: coloured text, no boxes --------------------------------
+%% Internal links (TOC, headline, \hyperlink) keep the surrounding colour so
+%% navigation text is not recoloured; URLs and citations use the primary.
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = .,
+  urlcolor   = IISTPrimary,
+  citecolor  = IISTPrimary,
+  filecolor  = IISTPrimary,
+  pdfborder  = {0 0 0}
+}
+%% Beamer's \translate (e.g. in the natbib "References" heading) is not
+%% allowed in PDF bookmarks; pass its argument through instead.
+\pdfstringdefDisableCommands{\def\translate#1{#1}}
 
+%% ---- Frame margins (explicit; same as beamer default) -------------------
+\setbeamersize{text margin left=1cm, text margin right=1cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% --------------------Logo------------------------------------------%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\iist@logofile}{logo.pdf}
+\newcommand{\iistlogo}[1]{\renewcommand{\iist@logofile}{#1}}
+\newlength{\iistlogoheight}
+\setlength{\iistlogoheight}{1cm}
+%% \iist@logo{<max size>}: logo fitted inside a square box, aspect kept.
+\newcommand{\iist@logo}[1]{%
+  \IfFileExists{\iist@logofile}%
+    {\includegraphics[height=#1, width=#1, keepaspectratio]{\iist@logofile}}%
+    {}}
+\AtBeginDocument{%
+  \IfFileExists{\iist@logofile}{}{%
+    \PackageWarningNoLine{beamerthemeiist}{Logo file `\iist@logofile' not found;
+      logos are omitted}}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% --------------------Design of the Frame-------------------------%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Define two squares and parallel lines for for each frame's top
-\newcommand{\LogoLine}
-{	
-	\raisebox{-10mm}[0pt][0pt]
-	{
-		\begin{pgfpicture}{0mm}{0mm}{0mm}{0mm}
-			\pgfsetlinewidth{0.1mm}			
-			\color{BottomLine!60}       	
-% 			\pgfrect[fill]{\pgfpoint{4mm}{2mm}}{\pgfpoint{3mm}{3mm}}
-			\ifx\insertframetitle\empty
-			\else
-				\color{BottomLine}  
-				\pgfline{\pgfpoint{2.5mm}{1.75mm}}{\pgfpoint{14.3cm}{1.75mm}}
-			\fi
-			\color{TopLine!50}
-% 			\pgfrect[fill]{\pgfpoint{1mm}{5mm}}{\pgfpoint{3mm}{3mm}}
-			\ifx\insertframetitle\empty
-			\else
-				\color{TopLine}
-				\pgfline{\pgfpoint{2.5mm}{2.25mm}}{\pgfpoint{14.3cm}{2.25mm}}
-			\fi
-% 			\hspace{1.6cm}{\raisebox{5mm}\includegraphics[height=1cm, width=1cm]{logo.pdf}}
-            \makebox[0pt][l]{\hspace*{14.4cm}\raisebox{-2mm}{\includegraphics[height=1cm, width=1cm]{logo.pdf}}}
-		\end{pgfpicture}
-	}
-}
+%% Two parallel rules under the frame title and the logo at top right.
+%% Drawn only on frames that have a frame title, so the title page and
+%% section dividers show neither. Positions are measured from the page
+%% edges, so they follow \paperwidth (16:9, 16:10, 4:3).
+\newcommand{\LogoLine}{%
+  \ifx\insertframetitle\empty
+  \else
+    \begin{tikzpicture}[remember picture, overlay]
+      \draw[line width=0.1mm, IISTAccent]
+        ($(current page.north west)+(3.2mm,-10.5mm)$) --
+        ($(current page.north east)+(-16.3mm,-10.5mm)$);
+      \draw[line width=0.1mm, IISTSand]
+        ($(current page.north west)+(3.2mm,-11.0mm)$) --
+        ($(current page.north east)+(-16.3mm,-11.0mm)$);
+      \node[anchor=north east, inner sep=0pt]
+        at ($(current page.north east)+(-5.2mm,-4.8mm)$)
+        {\iist@logo{\iistlogoheight}};
+    \end{tikzpicture}%
+  \fi}
 
-%% Design of the headline of each frame
-\setbeamercolor*{section in head/foot}{parent=palette tertiary}
-\setbeamercolor*{subsection in head/foot}{parent=palette primary}
+%% Design of the headline of each frame: current section (left of centre)
+%% and current subsection (right of centre), small, no background.
+\setbeamercolor{section in head/foot}{fg=IISTPrimaryDark, bg=white}
+\setbeamercolor{subsection in head/foot}{fg=IISTPrimary, bg=white}
+\setbeamerfont{section in head/foot}{size=\tiny, series=\bfseries}
+\setbeamerfont{subsection in head/foot}{size=\tiny}
 
 \defbeamertemplate*{headline}{withlink theme}
-{
-	\leavevmode
-	\hbox
-	{
-		\setbeamercolor{sec}{fg=TitleBlack, bg=white}
-		\hspace{-2mm}
-		\begin{beamercolorbox}[wd=.5\paperwidth,ht=2.25ex,dp=0.75ex,right]{sec}
-			\usebeamerfont{section in head/foot}{\textsc{\insertsectionhead}}\hspace*{2ex}
-		\end{beamercolorbox}
-		\setbeamercolor{subsec}{fg=TopLine!150,bg=white}
-		\hspace{-2mm}
-		\begin{beamercolorbox}[wd=.5\paperwidth,ht=2.25ex,dp=0.75ex,left]{subsec}
-			\usebeamerfont{subsection in head/foot}{\hspace*{2ex}{\insertsubsectionhead}}
-		\end{beamercolorbox}
-	}
-	\hfill
-	\hspace{0cm}\LogoLine
-} 
+{%
+  %% Built from boxes only (no paragraph), so no under/overfull line at
+  %% any paper width.
+  \vbox{%
+    \hbox to \paperwidth{%
+      \hbox to .5\paperwidth{\hfil
+        \usebeamerfont{section in head/foot}\usebeamercolor[fg]{section in head/foot}%
+        \vrule height 2.25ex depth 0.75ex width 0pt%
+        {\iist@caps\insertsectionhead}\hspace*{2ex}}%
+      \hbox to .5\paperwidth{\hspace*{2ex}%
+        \usebeamerfont{subsection in head/foot}\usebeamercolor[fg]{subsection in head/foot}%
+        \vrule height 2.25ex depth 0.75ex width 0pt%
+        \insertsubsectionhead\hfil}%
+      \hss% absorbs the 1sp rounding of 2 x .5\paperwidth (e.g. at 4:3)
+    }%
+    \nointerlineskip
+    \hbox{\LogoLine}%
+  }%
+}
 
 %% Font size and positioning of the frame titles
 \setbeamerfont{frametitle}{size = \large}
-\setbeamertemplate{frametitle}{
-\vspace*{1.5mm}\hspace*{-1mm}\insertframetitle}
+\setbeamertemplate{frametitle}{%
+  \vspace*{1.5mm}\hspace*{-1mm}\insertframetitle}
 
-%% Define a command 'footlinebar;for drawing two parallel lines at 
-%% the bottom of each frame 
-\newcommand{\footlinebar}
-{
-	\raisebox{2mm}[0pt][0pt]
-	{
-		\begin{pgfpicture}{0mm}{0mm}{0mm}{0mm}
-			\pgfsetlinewidth{0.1mm}
-			\color{BottomLine}      	
-			\pgfline{\pgfpoint{-1mm}{1mm}}{\pgfpoint{15.2cm}{1mm}}
-			\color{TopLine}      	
-			\pgfline{\pgfpoint{-1mm}{0.5mm}}{\pgfpoint{15.2cm}{0.5mm}}			
-			\end{pgfpicture}  
-	}
-  	\ifx\author\empty
-		\hspace{-2mm}{\insertauthor}		
-	\else
-		\hspace{-2mm}\insertshortauthor 
-  	\fi
-	\hfill
-	{
-		\color{CustomBlue}
-		\ifx\insertshorttitle\empty
-			\textsc{\inserttitle}
-		\else
-			\textsc{\insertshorttitle}
-		\fi
-	}
-	\hfill
-  	\insertshortdate \hspace{5mm} \insertframenumber/\inserttotalframenumber
-} 
+%% Footline: short author . short institute | short title | date  n/N
+%% Two parallel rules above it, drawn relative to the page width.
+\setbeamercolor{footline}{fg=IISTMuted}
+\setbeamercolor{footline title}{fg=IISTPrimary}
+\setbeamerfont{footline}{size=\tiny}
+\newcommand{\footlinebar}{%
+  \begin{tikzpicture}[remember picture, overlay]
+    \draw[line width=0.1mm, IISTSand]
+      ($(current page.south west)+(3.2mm,4.0mm)$) --
+      ($(current page.south east)+(-3.2mm,4.0mm)$);
+    \draw[line width=0.1mm, IISTAccent]
+      ($(current page.south west)+(3.2mm,3.5mm)$) --
+      ($(current page.south east)+(-3.2mm,3.5mm)$);
+  \end{tikzpicture}%
+}
+\newcommand{\iist@footinstitute}{%
+  \ifx\insertshortinstitute\empty\else
+    \ \textperiodcentered\ \insertshortinstitute
+  \fi}
 
 %% Definition of the footline area for each frame
 \setbeamertemplate{footline}
-{
-	\usebeamerfont{structure}	
-  	\begin{beamercolorbox}[wd=\paperwidth,ht=2.25ex,dp=1ex]{title in head/foot}
-    	\tiny\hspace*{2mm} \footlinebar \hspace{4mm}
-  	\end{beamercolorbox}
+{%
+  \footlinebar
+  \usebeamerfont{footline}%
+  \begin{beamercolorbox}[wd=\paperwidth,ht=2.25ex,dp=1ex]{footline}%
+    \hspace*{3.2mm}\insertshortauthor\iist@footinstitute
+    \hfill
+    {\usebeamercolor[fg]{footline title}\iist@caps\insertshorttitle}%
+    \hfill
+    \insertshortdate\hspace{5mm}\insertframenumber/\inserttotalframenumber\hspace*{3.2mm}%
+  \end{beamercolorbox}%
 }
 
 %% Disable the navigation symbols in frames
 \setbeamertemplate{navigation symbols}{}
-  	
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% --------------------Section and subsection pages-----------------%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setbeamercolor{section title}{fg=IISTPrimaryDark}
+\setbeamercolor{subsection title}{fg=IISTPrimaryDark}
+\setbeamercolor{section number}{fg=IISTPrimary}
+\setbeamerfont{section title}{size=\Large, series=\bfseries}
+\setbeamerfont{subsection title}{size=\large, series=\bfseries}
+\setbeamerfont{section number}{size=\small}
+
+%% Shaded rule: white - accent - white (v1 shading, kept by name)
+\pgfdeclarehorizontalshading{doubleShade}{0.5pt}{color(0cm)=(white);
+color(.5\textwidth)=(TopLine); color(\textwidth)=(white)}
+\newcommand{\iist@shadedrule}[1]{%
+  \begin{tikzpicture}
+    \shade[left color=white, right color=IISTAccent] (0,0) rectangle (#1/2,0.4pt);
+    \shade[left color=IISTAccent, right color=white] (#1/2,0) rectangle (#1,0.4pt);
+  \end{tikzpicture}}
+
+\defbeamertemplate*{section page}{iist}{%
+  \begin{centering}
+    {\usebeamerfont{section number}\usebeamercolor[fg]{section number}%
+      {\iist@caps Section~\insertsectionnumber}\par}%
+    \vspace{2mm}
+    {\usebeamerfont{section title}\usebeamercolor[fg]{section title}%
+      \insertsection\par}%
+    \vspace{2mm}
+    \iist@shadedrule{0.6\textwidth}\par
+  \end{centering}}
+
+\defbeamertemplate*{subsection page}{iist}{%
+  \begin{centering}
+    {\usebeamerfont{section number}\usebeamercolor[fg]{section number}%
+      {\iist@caps\insertsectionnumber.\insertsubsectionnumber\ \insertsection}\par}%
+    \vspace{2mm}
+    {\usebeamerfont{subsection title}\usebeamercolor[fg]{subsection title}%
+      \insertsubsection\par}%
+    \vspace{2mm}
+    \iist@shadedrule{0.5\textwidth}\par
+  \end{centering}}
+
+%% Divider frames have no frame title, so the header rules and the logo
+%% are not drawn on them. A document's own \AtBeginSection overrides this.
+\newcommand{\iistsubsectionframe}{\begin{frame}\subsectionpage\end{frame}}
+\ifiist@sectionpages
+  \AtBeginSection[]{\begin{frame}\sectionpage\end{frame}}
+\fi
+\ifiist@subsectionpages
+  \AtBeginSubsection[]{\begin{frame}\subsectionpage\end{frame}}
+\fi
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% --------------------Watermark (background) helpers----------------%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Faded logo behind the frame content. Low opacity keeps body text at
+%% full contrast. Beamer's own background template is used, so a
+%% document can still set \setbeamertemplate{background} directly.
+\newcommand{\iistwatermarkon}[1][0.08]{%
+  \setbeamertemplate{background}{%
+    \begin{tikzpicture}[remember picture, overlay]
+      \node[inner sep=0pt, opacity=#1] at (current page.center)
+        {\iist@logo{0.8\paperheight}};
+    \end{tikzpicture}}}
+\newcommand{\iistwatermarkoff}{\setbeamertemplate{background}{}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% --------------------Design of the Title Page--------------------%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\setbeamercolor{title}{bg=orange, fg=TitleBlack}
+\setbeamercolor{title}{fg=IISTPrimaryDark}
+\setbeamercolor{subtitle}{fg=IISTMuted}
 \setbeamerfont{title}{size=\tiny}
 
+\newcommand{\iist@titlerules}[2]{% #1 first colour, #2 second colour
+  \begin{tikzpicture}[remember picture, overlay]
+    \draw[line width=0.1mm, #1]
+      ($(current page.north west)+(3mm,-2.6mm)$) --
+      ($(current page.north east)+(-3mm,-2.6mm)$);
+    \draw[line width=0.1mm, #2]
+      ($(current page.north west)+(3mm,-3.1mm)$) --
+      ($(current page.north east)+(-3mm,-3.1mm)$);
+    \draw[line width=0.1mm, #2]
+      ($(current page.south west)+(3mm,5.1mm)$) --
+      ($(current page.south east)+(-3mm,5.1mm)$);
+    \draw[line width=0.1mm, #1]
+      ($(current page.south west)+(3mm,5.6mm)$) --
+      ($(current page.south east)+(-3mm,5.6mm)$);
+  \end{tikzpicture}}
+
 \setbeamertemplate{title page}
-{
-	\centering	
+{%
+	\iist@titlerules{IISTAccent}{IISTSand}%
+	\centering
 	\vspace{-2mm}
-	%% Drawing two parallel lines at the top
-	\begin{textblock*}{\paperwidth}(0cm,0.1cm)
-		\begin{beamercolorbox}[wd=\paperwidth,ht=2.25ex]{Title}
-			\begin{pgfpicture}{0mm}{0mm}{\paperwidth}{13mm}
-				\pgfsetlinewidth{0.1mm}
-				\color{BottomLine}
-				\pgfline{\pgfpoint{3mm}{0mm}}{\pgfpoint{157mm}{0mm}}
-				\color{TopLine}
-				\pgfline{\pgfpoint{3mm}{0.5mm}}{\pgfpoint{157mm}{0.5mm}}		
-			\end{pgfpicture} 
-		\end{beamercolorbox}
-	\end{textblock*}
-	
-	\vspace{0.25cm}
 	\ifx\inserttitle\empty
 	\else
-		\setbeamercolor{title}{bg=orange, fg=white}
-                {\begin{mdframed}[backgroundcolor=TopLine!10, linecolor=white,
-                    shadow=true, shadowsize=4pt,
-                    roundcorner=4pt]
-                    \begin{center}\normalsize\textbf{\inserttitle}\end{center}\end{mdframed}} % Title
+		{\begin{mdframed}[backgroundcolor=IISTPrimary!8, linecolor=white,
+			shadow=true, shadowsize=4pt, shadowcolor=black!25,
+			roundcorner=4pt]
+			\begin{center}\usebeamercolor[fg]{title}\normalsize\textbf{\inserttitle}\end{center}%
+		\end{mdframed}\par}% Title
 	\fi
-	
-   	\ifx\insertsubtitle\empty		
+	\ifx\insertsubtitle\empty
 	\else
-		{\vspace{2mm} \tiny \insertsubtitle} % Subtitle
+		{\usebeamercolor[fg]{subtitle}\scriptsize\insertsubtitle\par}% Subtitle
 	\fi
-	
-	\ifx\author\empty		
+	\vspace{0.4cm}
+	% Author: \authorCustom name and code if given, else \author
+	\ifdefined\authorname
+		{\footnotesize\textbf{\authorname}\ifx\authorcode\empty\else, \authorcode\fi\par}%
 	\else
-		\vspace{0.5cm}
-		{\footnotesize \textbf{\authorname}, \authorcode} % Author
-	\fi	
-	
+		{\footnotesize\textbf{\insertauthor}\par}%
+	\fi
 	\ifdefined\advisorname
 		\vspace{0.2cm} % Advisor
-		{\tiny \color{TopLine}\advisordesc}{\footnotesize {\vspace*{1mm}\\}\advisorname} \vspace*{1mm}\\{\tiny \advisorpost}
-	\else
+		{\tiny \color{IISTPrimary}\advisordesc}{\footnotesize {\vspace*{1mm}\\}\advisorname} \vspace*{1mm}\\{\tiny \advisorpost}\par
 	\fi
-	
 	\ifdefined\advisorAname
 		\vspace{0.2cm} % Advisor
-		{\tiny \color{TopLine}\advisorAdesc}{\footnotesize {\vspace*{1mm}\\}\advisorAname} \vspace*{1mm}\\ {\tiny \advisorApost}
-	\else
+		{\tiny \color{IISTPrimary}\advisorAdesc}{\footnotesize {\vspace*{1mm}\\}\advisorAname} \vspace*{1mm}\\ {\tiny \advisorApost}\par
 	\fi
-	
 	\vspace{0.35cm}
-	\includegraphics[width=1.2cm, height=1.2cm]{logo.pdf} % Logo
-	
+	\iist@logo{1.2cm}\par % Logo
 	\vspace{0.25cm}
-	{\tiny\textsc{\insertinstitute}} % Institute name
-	
-% 	\vspace{0.5cm}
-% 	{\scriptsize \insertdate} % Date
-
-	% Drawing two parallel lines at the bottom
-	\begin{textblock*}{\paperwidth}(0cm,0.92\paperheight)
-		\begin{beamercolorbox}[wd=\paperwidth,ht=2.25ex]{Title}
-			\begin{pgfpicture}{0mm}{0mm}{\paperwidth}{1mm}				
-				\pgfsetlinewidth{0.1mm}
-				\color{BottomLine}
-				\pgfline{\pgfpoint{3mm}{0.5mm}}{\pgfpoint{157mm}{0.5mm}}		
-				\color{TopLine}
-				\pgfline{\pgfpoint{3mm}{0mm}}{\pgfpoint{157mm}{0mm}}							
-			\end{pgfpicture} 
-		\end{beamercolorbox}		
-	\end{textblock*}	
-	\ifdefined\BottomFigure
-	\vspace*{-2mm}
-		\BottomFigure % Bottom figure
+	{\tiny{\iist@caps\insertinstitute}\par}% Institute name
+	\ifx\insertdate\empty
 	\else
-	\fi	
+		\vspace{0.1cm}
+		{\tiny\usebeamercolor[fg]{subtitle}\insertdate\par}% Date
+	\fi
+	\ifdefined\BottomFigure
+		\vspace*{1mm}
+		\BottomFigure % Bottom figure
+	\fi
 }
 
-
-% Shade definition for the line used in customframes
-\pgfdeclarehorizontalshading{doubleShade}{0.5pt}{color(0cm)=(white); 
-color(.5\textwidth)=(TopLine); color(\textwidth)=(white)}
-
-%% Definition for the custom frame
+%% Definition for the custom frame (e.g. \customframe{Questions?}{email})
 \newcommand{\customframe}[2]{
 \begin{frame}[plain]
-\begin{center}
-
-%% Definition for custom frame
-\begin{pgfpicture}{0mm}{0mm}{\paperwidth}{\paperheight}
-	\pgfputat{\pgfxy(7.5,5)}{\pgfbox[center,center]{\huge #1}}
-	\pgfputat{\pgfxy(7.5,4.6)}{\pgfuseshading{doubleShade}}
-	\pgfputat{\pgfxy(7.5,4.4)}{\pgfbox[center,center]{\color{CustomBlue}\scriptsize{#2}}}
-	\pgfputat{\pgfxy(11,12.065)}{\pgfbox[center,center]{\includegraphics[height=1cm, width=1cm]{logo.pdf}}}
-	\pgfsetlinewidth{0.1mm}
-	\color{BottomLine}
-	\color{TopLine}
-\end{pgfpicture} 
-\end{center}
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[font=\huge, text=IISTPrimaryDark] (cf title)
+      at ($(current page.center)+(0,3.5mm)$) {#1};
+    \node[anchor=north, inner sep=0pt] (cf rule)
+      at ($(cf title.south)+(0,-1.5mm)$) {\iist@shadedrule{0.5\paperwidth}};
+    \node[anchor=north, font=\scriptsize, text=IISTPrimary]
+      at ($(cf rule.south)+(0,-1.5mm)$) {#2};
+    \node[anchor=north east, inner sep=0pt]
+      at ($(current page.north east)+(-5.2mm,-4.8mm)$)
+      {\iist@logo{\iistlogoheight}};
+  \end{tikzpicture}
 \end{frame}
 }
 
 \mode
-<all>  	  
+<all>
