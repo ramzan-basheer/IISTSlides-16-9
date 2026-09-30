@@ -1,41 +1,70 @@
 \documentclass[aspectratio=169]{beamer}
 
-%\setbeamertemplate{bibliography item}[text]
-% \usepackage{biblatex}
+%% ============================================================
+%%  pres.tex — IIST Beamer template, complete author guide
+%%  Theme: beamerthemeiist.sty (v2.1, serif math)
+%% ============================================================
+%%  What this file demonstrates (search for the tag):
+%%    [TEXT]      text formatting: bold, italic, alert, structure
+%%    [LIST]      itemize, enumerate, description, with overlays
+%%    [BLOCK]     block, exampleblock, alertblock, nested
+%%    [COL]       columns and minipages
+%%    [FIG]       figures, subfigures, side-by-side
+%%    [TAB]       booktabs tables with \iistheadrow
+%%    [CODE]      verbatim and listings (needs [fragile])
+%%    [MATH]      inline, display, align, cases, matrix
+%%    [THM]       assumption, remark, proposition
+%%    [ANIM]      \pause, \onslide, \only, \uncover, \visible, \alt
+%%    [TIKZ]      inline diagram
+%%    [CITE]      natbib, footnote citations, bibliography
+%%    [FRAME]     frame options: plain, allowframebreaks, shrink, label
+%%    [WM]        watermark helpers
+%%    [BACKUP]    appendix / backup slides
+%%    [NOTE]      presenter notes
+%% ============================================================
+
+%% sansmathaccent + its map file are no longer needed: theme v2.1 uses
+%% serif math (newpxmath). Kept here, commented, for reference.
+% \usepackage{sansmathaccent}
+% \pdfmapfile{+sansmathaccent.map}
+
 \usepackage{natbib}
 \bibliographystyle{dinat}
-
-\usepackage{sansmathaccent}
-\pdfmapfile{+sansmathaccent.map}
-
 \renewcommand{\bibfont}{\tiny}
 
-%% Add your bibliography, i.e., bibtex file here
+%% Bibliography file. Populate pres.bib with your references.
 % \addbibresource{pres.bib}
 
-%% Using the iist theme
+%% ---- Theme ---------------------------------------------------------
+%% Options: sans (default), serif, classicfonts,
+%%          nosectionpages, subsectionpages
 \usetheme{iist}
+%% e.g. \usetheme[serif]{iist}
+%% e.g. \usetheme[subsectionpages]{iist}
 
-%% Assigning the date. You can use custom date style as 
-%% \date{01 January, 2015}
+%% ---- Metadata ------------------------------------------------------
 \date{\today}
-
-%% Add title, subtitle, authors
-\title[$\quad\quad\qquad$ Subject Code]{Title}
+\title[Short Title]{Title}
 \subtitle{Subject Code: Subject Name}
 \author[Presenter Name]{Presenter Name}
 \authorCustom{Presenter Name}{Student Code}
 \newcommand{\emailid}{youremail@domain.com}
-%% Advisor/research supervisor is optional. If you don't want just 
-%% comment the line.
-\advisor{Role of Guide\#1}{Guide\#1 Name}{Designation of Guide\#1}
 
+%% Advisors are optional — comment out any you do not need.
+\advisor{Role of Guide\#1}{Guide\#1 Name}{Designation of Guide\#1}
 \advisorA{Role of Guide\#2}{Guide\#2 Name}{Designation of Guide\#2}
 
 \institute[IIST]{Indian Institute of Space Science and Technology \\
 Thiruvananthapuram, Kerala, India 695547 \\}
 
+%% ---- Logo (optional; theme defaults to logo.pdf) -------------------
+% \iistlogo{figures/iist-logo.pdf}
+% \setlength{\iistlogoheight}{1cm}
 
+%% ---- Section divider pages -----------------------------------------
+%% The theme already inserts a styled section page at each \section.
+%% To keep that and remove this custom override, delete this block.
+%% The override below is the v1 look, kept for compatibility.
 \AtBeginSection[]
 {
     \begin{frame}
@@ -46,217 +75,426 @@ Thiruvananthapuram, Kerala, India 695547 \\}
     \end{frame}
 }
 
-
 \begin{document}
 
-%% Creating title slide
+%% ============================================================
+%%  Title slide
+%% ============================================================
 \begin{frame}[plain]
     \usebeamerfont{title}
-	\titlepage
+    \titlepage
 \end{frame}
 
-%% Creating slide with table of contents
-%EDIT!!! Background faded IIST logo added (edited by ramzan basheer)
-\setbeamertemplate{background}{
-  \begin{tikzpicture}
-    \node[inner sep=0pt,outer sep=0pt,opacity=0.15] at (current page.center) {\includegraphics[width=\paperwidth,height=0.9\paperheight, keepaspectratio]{logo.pdf}};
-    \path [draw=none, fill=white, opacity=0.3] (0,0) rectangle (\paperwidth,\paperheight);
-  \end{tikzpicture}
-}
+%% ============================================================
+%%  Outline  [WM] watermark helper demo
+%% ============================================================
+\iistwatermarkon[0.10]   %% faded logo behind following frames
 \begin{frame}
-	\frametitle{Outline}
-	\tableofcontents
+    \frametitle{Outline}
+    \tableofcontents[hideallsubsections]
+\end{frame}
+\iistwatermarkoff        %% turn the watermark off again
+
+%% ============================================================
+\section{Text \& Formatting}  [TEXT]
+%% ============================================================
+\begin{frame}{Text formatting}
+    Normal text. \textbf{Bold}, \textit{italic}, \texttt{monospace},
+    \textsc{small caps}, \underline{underline}, \emph{emphasised}.
+
+    \medskip
+    \alert{Alerted text} uses the alert colour.
+    \structure{Structured text} uses the theme colour.
+
+    \medskip
+    Coloured text: \textcolor{IISTPrimary}{IISTPrimary},
+    \textcolor{IISTExample}{IISTExample},
+    \textcolor{IISTAlert}{IISTAlert}.
+
+    \medskip
+    A hyperlink: \href{https://www.iist.ac.in}{IIST website}.
+
+    \medskip
+    A quote:
+    \begin{quote}
+        ``Simplicity is the ultimate sophistication.'' --- attributed
+        to Leonardo da Vinci.
+    \end{quote}
 \end{frame}
 
-\setbeamertemplate{background}{}
-
-%% Here onwards you can add your contents
-\section{Listing}
-\subsection{Itemization}
-\begin{frame}
-	\frametitle{Itemize}
-        %gEDIT!!! greying of visited items(edited by ramzan basheer)
-		\begin{itemize}[<+->]\color{gray}
- 			\item \color<.>{black} Item 1
- 			\item \color<.>{black} Item 2
- 			\begin{itemize}[<+->]\color{gray}
-				\item \color<.>{black} Subitem 2.1
-				\begin{itemize}[<+->]\color{gray}
-					\item \color<.>{black} Subsubitem 2.1.1
-					\item \color<.>{black} Subsubitem 2.1.2
-				\end{itemize}
-				\item \color<.>{black} Subitem 2.2
- 			\end{itemize}
- 			\item \color<.>{black} Item 3
- 		\end{itemize} 		
+%% ============================================================
+\section{Lists}  [LIST]
+%% ============================================================
+\subsection{Itemize}
+\begin{frame}{Itemize with progressive reveal}
+    %% \color<.>{black} greys unvisited items, blacks the current one.
+    \begin{itemize}[<+->]\color{gray}
+        \item \color<.>{black} Item 1
+        \item \color<.>{black} Item 2
+        \begin{itemize}[<+->]\color{gray}
+            \item \color<.>{black} Subitem 2.1
+            \begin{itemize}[<+->]\color{gray}
+                \item \color<.>{black} Subsubitem 2.1.1
+                \item \color<.>{black} Subsubitem 2.1.2
+            \end{itemize}
+            \item \color<.>{black} Subitem 2.2
+        \end{itemize}
+        \item \color<.>{black} Item 3
+    \end{itemize}
 \end{frame}
 
+\subsection{Enumerate}
+\begin{frame}{Enumerate with overlay specs}
+    \begin{enumerate}
+        \item<1->      Item 1 (from slide 1)
+        \item<2-3>     Item 2 (slides 2--3)
+        \item<3>       Item 3 (slide 3 only)
+    \end{enumerate}
 
-\subsection{Enumeration}
-\begin{frame}
-	\frametitle{Enumerate}
-	\begin{enumerate}	
-        %EDIT!!! Animation of items. Play around with the numbers(edited by ramzan basheer)
-		\item <1-> Item 1
-		\item <2-3>Item 2
-		\item <3> Item 3
-	\end{enumerate}	
+    \medskip
+    Plain enumerate:
+    \begin{enumerate}
+        \item First
+        \item Second
+    \end{enumerate}
 \end{frame}
-
 
 \subsection{Description}
-\begin{frame}
-	\frametitle{Description}
-		\begin{description}
-            %EDIT!!! animation added (edited by ramzan basheer)
-			\item <1> [One] Item 1
-			\item <2> [Two] Item 2
-		\end{description}
-\end{frame}	
-
-\section{Blocks}
-\subsection{Different blocks}
-\begin{frame}
-	\frametitle{Blocks}
-		\begin{block}{Block}
-			This is a sample block
-		\end{block}
+\begin{frame}{Description}
+    \begin{description}
+        \item<1> [One] Item 1
+        \item<2> [Two] Item 2
+        \item<3-> [Three] Item 3
+    \end{description}
 \end{frame}
-% \begin{frame}
-% 		\frametitle{Example block}
-\begin{frame}{Example block} %EDIT!!! \frametitle is removed now (edited by ramzan basheer)
-%EDIT!!! minipage added (edited by ramzan basheer)
-    \begin{minipage}{0.45\textwidth}
-		\begin{exampleblock}{Example 1}
-			This is a sample example block 1
-		\end{exampleblock}
-    \end{minipage}%
-    \hfill
-    \begin{minipage}{0.45\textwidth}
-		\begin{exampleblock}{Example 2}
-			This is a sample example block 2
-		\end{exampleblock}
+
+%% ============================================================
+\section{Blocks}  [BLOCK]
+%% ============================================================
+\begin{frame}{Block, exampleblock, alertblock}
+    \begin{block}{Block}
+        This is a sample block.
+    \end{block}
+
+    \begin{exampleblock}{Example}
+        This is a sample example block.
+    \end{exampleblock}
+
+    \begin{alertblock}{Alert}
+        This is a sample alert block.
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Side-by-side blocks with overlays}
+    \only<1->{%
+        \begin{minipage}{0.48\textwidth}
+            \begin{exampleblock}{Example 1}
+                Content of example 1.
+            \end{exampleblock}
+        \end{minipage}}\hfill
+    \only<2->{%
+        \begin{minipage}{0.48\textwidth}
+            \begin{exampleblock}{Example 2}
+                Content of example 2.
+            \end{exampleblock}
+        \end{minipage}}
+\end{frame}
+
+\begin{frame}{Nested block}
+    \begin{block}{Outer}
+        Outer text.
+        \begin{exampleblock}{Inner}
+            Inner text, aligned with the outer block.
+        \end{exampleblock}
+    \end{block}
+\end{frame}
+
+%% ============================================================
+\section{Columns \& Minipages}  [COL]
+%% ============================================================
+\begin{frame}{Columns: text $|$ figure}
+    \begin{columns}[T]                       %% [T] aligns tops
+        \begin{column}{0.48\textwidth}
+            \begin{itemize}
+                \item Left column text
+                \item More text
+                \item Even more
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.48\textwidth}
+            \centering
+            \includegraphics[width=0.8\linewidth]{figures/latexlogo.png}
+            \par\smallskip
+            {\footnotesize A caption under the figure.}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Minipages: three columns}
+    \begin{minipage}[t]{0.31\textwidth}
+        \begin{exampleblock}{A}
+            \small First column.
+        \end{exampleblock}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.31\textwidth}
+        \begin{exampleblock}{B}
+            \small Second column.
+        \end{exampleblock}
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.31\textwidth}
+        \begin{exampleblock}{C}
+            \small Third column.
+        \end{exampleblock}
     \end{minipage}
 \end{frame}
-%EDIT!!! minipages with animation (edited by ramzan basheer)
-\begin{frame}{Alert block}
-    \only <1->{
-        \begin{minipage}{0.45\textwidth}
-            \begin{alertblock}{Alert 1}
-			         This is a sample alert block 1
-		      \end{alertblock}
-        \end{minipage}%
-    }
-    \hfill
-    \only <2> {
-        \begin{minipage}{0.45\textwidth}
-            \begin{alertblock}{Alert 2}
-			         This is a sample alert block 2
-		      \end{alertblock}
+
+%% ============================================================
+\section{Figures \& Tables}  [FIG] [TAB]
+%% ============================================================
+\begin{frame}{Single figure with caption and citation}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.35\linewidth]{figures/latexlogo.png}
+        \caption{\LaTeX\ logo}
+        \label{fig:latexlogo}
+        \citep{stallman1981emacs}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Side-by-side figures}
+    \begin{figure}
+        \centering
+        \begin{minipage}{0.45\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{figures/latexlogo.png}
+            \caption{Left figure}
+        \end{minipage}\hfill
+        \begin{minipage}{0.45\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{figures/latexlogo.png}
+            \caption{Right figure}
         \end{minipage}
-    }
-\end{frame}	
-
-\section{Figures \& Columns}
-\subsection{Figures}
-\begin{frame}
-	\frametitle{Including figure}
-	\begin{figure}
-		\centering
-		\includegraphics[scale=0.1]{figures/latexlogo.png}
-		\caption{\LaTeX-logo}
-        \citep{stallman1981emacs} %EDIT!!! Abbreviated style citation added (by ramzan basheer)
-	\end{figure}
+    \end{figure}
 \end{frame}
 
-\subsection{Columns}
-\begin{frame}
-	\frametitle{Multiple columns}
-	\begin{columns}
-		\begin{column}{0.5\paperwidth}
-		 \begin{figure}
-			\centering
-			\includegraphics[scale=0.1]{figures/latexlogo.png}
-			\caption{\LaTeX-logo}
-			\end{figure}
-		\end{column}
-		\begin{column}{0.5\paperwidth}
-		 \begin{itemize}
-			\item \hyperlink{label1}{Item 1} %EDIT!!! hyperlink added (by ramzan basheer)
-			\item Item 2
-			\item Item 3
-		 \end{itemize}
-		\end{column}	
-	\end{columns}
+\begin{frame}{Table with booktabs and coloured header row}
+    \centering
+    \begin{tabular}{lrr}
+        \toprule
+        \iistheadrow Method & Speed (s) & Accuracy (\%) \\
+        \midrule
+        Baseline            & 12.4      & 88.1 \\
+        Proposed            & 7.6       & 94.3 \\
+        Oracle              & 5.1       & 99.0 \\
+        \bottomrule
+    \end{tabular}
+
+    \medskip
+    {\footnotesize Reference: \citep{stallman1985gnu}.}
 \end{frame}
 
-\section{GIFs}
+%% ============================================================
+\section{Code}  [CODE]
+%% ============================================================
+%% Frames containing verbatim or lstlisting MUST use [fragile].
+\begin{frame}[fragile]{Verbatin code}
+\begin{verbatim}
+def add(a, b):
+    return a + b
+\end{verbatim}
+\end{frame}
 
-\begin{frame}{Including GIFs}
-	\begin{center}
-	  \animategraphics[autoplay,loop,width=0.6\linewidth]{5}{figures/frame-}{0}{4}
-	\end{center}
-  \end{frame}
+\begin{frame}[fragile]{Listing with caption}
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\small,
+                   keywordstyle=\color{IISTPrimary}\bfseries,
+                   commentstyle=\color{IISTMuted}\itshape,
+                   stringstyle=\color{IISTExample},
+                   numbers=left, numberstyle=\tiny,
+                   frame=single, caption={Add two numbers}]
+def add(a, b):
+    # simple sum
+    return a + b
+\end{lstlisting}
+\end{frame}
 
+%% ============================================================
+\section{Mathematics}  [MATH]
+%% ============================================================
+\begin{frame}{Inline and display math}
+    Inline: $a = 1 + \theta$, and $\alpha^2 + \beta^2 = \gamma^2$.
+
+    \medskip
+    Display:
+    \begin{equation}
+        E = mc^2
+        \label{eq:emc2}
+    \end{equation}
+
+    Refer back to Eq.~\eqref{eq:emc2}.
+\end{frame}
+
+\begin{frame}{Aligned equations, cases, and matrices}
+    \begin{align}
+        f(x)   &= x^2 + 2x + 1 \\
+               &= (x+1)^2.
+    \end{align}
+
+    \begin{equation}
+        g(x) =
+        \begin{cases}
+            x^2,   & x \ge 0, \\
+            -x^2,  & x < 0.
+        \end{cases}
+    \end{equation}
+
+    \begin{equation}
+        A = \begin{pmatrix}
+            a & b \\
+            c & d
+        \end{pmatrix},
+        \qquad
+        \det A = ad - bc.
+    \end{equation}
+\end{frame}
+
+%% ============================================================
+\section{Theorems}  [THM]
+%% ============================================================
+\begin{frame}{Theorem-like environments}
+    \begin{assumption}
+        The input sequence is i.i.d.\ and bounded.
+    \end{assumption}
+
+    \begin{proposition}
+        Under the assumption above, the estimator is consistent.
+    \end{proposition}
+
+    \begin{remark}
+        The assumption can be relaxed to stationarity.
+    \end{remark}
+\end{frame}
+
+%% ============================================================
+\section{Animations \& Overlays}  [ANIM]
+%% ============================================================
+\begin{frame}{Common overlay commands}
+    \pause
+    Line 1 appears first.
+
+    \pause
+    Line 2 appears on the next click.
+
+    \pause
+    Line 3 appears last.
+\end{frame}
+
+\begin{frame}{Only, uncover, visible, alt}
+    \only<1>{Only on slide 1.}
+    \only<2>{Only on slide 2.}
+
+    \medskip
+    \uncover<1->{Visible from slide 1, but takes space even when hidden.}
+
+    \medskip
+    \visible<2->{Visible from slide 2 onward, takes space throughout.}
+
+    \medskip
+    \alt<1>{Slide 1 version.}{Slide 2 and later version.}
+\end{frame}
+
+\begin{frame}{Onslide}
+    \onslide<1->{Always shown.}
+    \onslide<2->{Shown from slide 2.}
+    \onslide<3>{Only on slide 3.}
+\end{frame}
+
+%% ============================================================
+\section{Diagrams (TikZ)}  [TIKZ]
+%% ============================================================
+\begin{frame}{A simple TikZ diagram}
+    \centering
+    \begin{tikzpicture}[node distance=1.6cm, every node/.style={draw,
+                        rounded corners, inner sep=4pt}]
+        \node (a) {Input};
+        \node (b) [right of=a] {Process};
+        \node (c) [right of=b] {Output};
+        \draw[->, thick, IISTPrimary] (a) -- (b);
+        \draw[->, thick, IISTPrimary] (b) -- (c);
+    \end{tikzpicture}
+\end{frame}
+
+%% ============================================================
 \section{Algorithms}
-\subsection{Sample algorithm}
-\begin{frame}[label =label1]{Algorithm} %EDIT!!! label added for hyperlinking (by ramzan basheer)
-	\begin{algorithm}[H]
-		%\SetAlgoVlined
-		\caption{Sum of $N$ numbers}
-		$S = 0$\\
-		\For{$i=1:N$}
-		{
-			$S = S + i$
-		}
-		Ouput $S$
-	\end{algorithm}
+%% ============================================================
+\begin{frame}[label=algo]{Algorithm}
+    \begin{algorithm}[H]
+        \caption{Sum of $N$ numbers}
+        $S = 0$\\
+        \For{$i=1:N$}
+        {
+            $S = S + i$
+        }
+        Output $S$
+    \end{algorithm}
 \end{frame}
 
-\section{Equations}
-\subsection{Sample Equations}
-\begin{frame}[label=eqn]{Equations}
-	\begin{equation}
-		a=1+\theta
-	\end{equation}
+%% ============================================================
+\section{Frames \& Options}  [FRAME]
+%% ============================================================
+\begin{frame}[plain]{Plain frame}
+    No header, no footline. Good for title pages and closing slides.
 \end{frame}
 
-\section{Bibliography}
-\subsection{Footnote}
-%\begin{frame}
-%	\frametitle{Citation} 
-%	\begin{block}{}
-%	``GNU, which stands for Gnu's Not Unix, is 
-%	the name for the complete Unix-compatible software system which 
-%	I am writing so that I can give it away free to everyone who can 
-%	use it\footnotemark."
-%	\end{block}
-%	\footnotetext{\fullcite{stallman1985gnu}}
-%	EMACS is a real-time display editor which can be extended by the 
-%	user while it is running\footfullcite{stallman1981emacs}.
-%\end{frame}
+\begin{frame}[shrink=10]{Shrink to fit}
+    Use \texttt{[shrink=<percent>]} when a frame overflows. Prefer
+    editing the content over shrinking.
+\end{frame}
 
-\begin{frame}
-    \frametitle{Citation}
+\begin{frame}[label=reusable]{A labelled frame}
+    This frame is labelled \texttt{reusable}.
+\end{frame}
+
+%% \againframe re-displays the frame above (useful in a summary).
+\begin{frame}{Summary reuses the labelled frame}
+    \againframe{reusable}
+\end{frame}
+
+\begin{frame}[allowframebreaks]{Long content that breaks across slides}
+    \lipsum[1-6]
+\end{frame}
+
+%% ============================================================
+\section{Citations \& Bibliography}  [CITE]
+%% ============================================================
+\begin{frame}{Footnotes and citations}
     \begin{block}{}
-        ``GNU, which stands for Gnu's Not Unix, is 
-        the name for the complete Unix-compatible software system which 
-        I am writing so that I can give it away free to everyone who can 
-        use it\footnote{\citep{stallman1985gnu}.}"
+        ``GNU, which stands for Gnu's Not Unix, is the name for the
+        complete Unix-compatible software system\footnote{%
+            \citep{stallman1985gnu}.}''
     \end{block}
-    EMACS is a real-time display editor which can be extended by the 
-    user while it is running\footnote{\citep{stallman1981emacs}}.
+    EMACS is a real-time display editor that can be extended by the
+    user while it is running.\footnote{\citep{stallman1981emacs}}
 \end{frame}
 
-
-%EDIT!!! References with frame breaks added (by ramzan basheer)
-\subsection{References}
 \begin{frame}[allowframebreaks]{References}
-	\bibliography{pres}
+    \bibliography{pres}
 \end{frame}
 
+%% ============================================================
+%%  Backup slides  [BACKUP]
+%% ============================================================
+\appendix
+\section*{Backup}
+\begin{frame}{Backup: extra detail}
+    Use \texttt{\textbackslash appendix} then plain frames for material
+    that should not appear in the main flow but should be reachable
+    during Q\&A.
+\end{frame}
+
+%% ============================================================
+%%  Closing frames
+%% ============================================================
 \customframe{Questions?}{\emailid}
 \customframe{Thank You!}{}
-
 
 \end{document}
