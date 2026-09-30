@@ -23,24 +23,33 @@
 %%    [NOTE]      presenter notes
 %% ============================================================
 
-%% sansmathaccent + its map file are no longer needed: theme v2.1 uses
-%% serif math (newpxmath). Kept here, commented, for reference.
-% \usepackage{sansmathaccent}
-% \pdfmapfile{+sansmathaccent.map}
-
 \usepackage{natbib}
 \bibliographystyle{dinat}
 \renewcommand{\bibfont}{\tiny}
+
+%% Code listings (used by the [CODE] section).
+\usepackage{listings}
+
+%% Dummy text for the allowframebreaks demo. Delete if not needed.
+\usepackage{lipsum}
 
 %% Bibliography file. Populate pres.bib with your references.
 % \addbibresource{pres.bib}
 
 %% ---- Theme ---------------------------------------------------------
 %% Options: sans (default), serif, classicfonts,
-%%          nosectionpages, subsectionpages
+%%          pxmath, txmath, nosectionpages, subsectionpages
+%%
+%%   \usetheme{iist}                        Fira text + Palatino math (default)
+%%   \usetheme[serif]{iist}                 Palatino text + Palatino math
+%%   \usetheme[serif,txmath]{iist}          Palatino text + Times math
+%%   \usetheme[classicfonts]{iist}          LM Sans text + Times math (v1 look)
+%%   \usetheme[classicfonts,pxmath]{iist}   LM Sans text + Palatino math
+%%   \usetheme[nosectionpages]{iist}        no automatic \section divider pages
+%%   \usetheme[subsectionpages]{iist}       also add \subsection divider pages
+%%
+%% Math is always serif (textbook style); no sans math is loaded.
 \usetheme{iist}
-%% e.g. \usetheme[serif]{iist}
-%% e.g. \usetheme[subsectionpages]{iist}
 
 %% ---- Metadata ------------------------------------------------------
 \date{\today}
@@ -63,8 +72,8 @@ Thiruvananthapuram, Kerala, India 695547 \\}
 
 %% ---- Section divider pages -----------------------------------------
 %% The theme already inserts a styled section page at each \section.
-%% To keep that and remove this custom override, delete this block.
-%% The override below is the v1 look, kept for compatibility.
+%% The block below is the v1 look kept for compatibility; delete it to
+%% use the theme's own divider instead.
 \AtBeginSection[]
 {
     \begin{frame}
@@ -88,7 +97,7 @@ Thiruvananthapuram, Kerala, India 695547 \\}
 %% ============================================================
 %%  Outline  [WM] watermark helper demo
 %% ============================================================
-\iistwatermarkon[0.10]   %% faded logo behind following frames
+\iistwatermarkon[0.10]   %% faded logo behind the following frame(s)
 \begin{frame}
     \frametitle{Outline}
     \tableofcontents[hideallsubsections]
@@ -297,7 +306,7 @@ Thiruvananthapuram, Kerala, India 695547 \\}
 \section{Code}  [CODE]
 %% ============================================================
 %% Frames containing verbatim or lstlisting MUST use [fragile].
-\begin{frame}[fragile]{Verbatin code}
+\begin{frame}[fragile]{Verbatim code}
 \begin{verbatim}
 def add(a, b):
     return a + b
